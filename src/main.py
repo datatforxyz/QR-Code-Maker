@@ -20,7 +20,8 @@ class QRCodeMakerGUI:
         self.font_file_path = tk.StringVar()
         
         # Set default values
-        self.save_directory.set("output")
+        self.save_directory.set(os.path.abspath("output"))
+        self.font_file_path.set("")
         
         self.setup_ui()
     
@@ -38,9 +39,38 @@ class QRCodeMakerGUI:
         title_label = ttk.Label(main_frame, text="QR Code Maker", font=("Arial", 16, "bold"))
         title_label.grid(row=0, column=0, columnspan=3, pady=(0, 20))
         
+        # Save Directory Section (moved to top, above both sections)
+        save_frame = ttk.LabelFrame(main_frame, text="Save Directory", padding="10")
+        save_frame.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
+        save_frame.columnconfigure(1, weight=1)
+        
+        # Save Directory Selection
+        ttk.Label(save_frame, text="Save Directory:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        save_entry = ttk.Entry(save_frame, textvariable=self.save_directory, width=50)
+        save_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(10, 5), pady=5)
+        ttk.Button(save_frame, text="Browse", command=self.browse_save_dir).grid(row=0, column=2, pady=5)
+        
+        # Font File Section (moved to top, above both sections)
+        font_frame = ttk.LabelFrame(main_frame, text="Font Settings", padding="10")
+        font_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
+        font_frame.columnconfigure(1, weight=1)
+        
+        # Font File Selection
+        ttk.Label(font_frame, text="Font File:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        self.font_entry = ttk.Entry(font_frame, textvariable=self.font_file_path, width=50)
+        self.font_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(10, 5), pady=5)
+        self.font_browse_button = ttk.Button(font_frame, text="Browse", command=self.browse_font)
+        self.font_browse_button.grid(row=0, column=2, pady=5)
+        
+        # Optional checkbox
+        self.use_custom_font = tk.BooleanVar(value=False)
+        font_check = ttk.Checkbutton(font_frame, text="Use custom font (optional)", 
+                                   variable=self.use_custom_font, command=self.toggle_font_field)
+        font_check.grid(row=1, column=1, sticky=tk.W, pady=5)
+        
         # Single QR Code Section
         single_frame = ttk.LabelFrame(main_frame, text="Single QR Code", padding="10")
-        single_frame.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
+        single_frame.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
         single_frame.columnconfigure(1, weight=1)
         
         # Title input
@@ -60,7 +90,7 @@ class QRCodeMakerGUI:
         
         # CSV Batch Processing Section
         csv_frame = ttk.LabelFrame(main_frame, text="Batch Processing (CSV)", padding="10")
-        csv_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
+        csv_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
         csv_frame.columnconfigure(1, weight=1)
         
         # CSV File Selection
@@ -69,36 +99,18 @@ class QRCodeMakerGUI:
         csv_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(10, 5), pady=5)
         ttk.Button(csv_frame, text="Browse", command=self.browse_csv).grid(row=0, column=2, pady=5)
         
-        # Save Directory Selection
-        ttk.Label(csv_frame, text="Save Directory:").grid(row=1, column=0, sticky=tk.W, pady=5)
-        save_entry = ttk.Entry(csv_frame, textvariable=self.save_directory, width=50)
-        save_entry.grid(row=1, column=1, sticky=(tk.W, tk.E), padx=(10, 5), pady=5)
-        ttk.Button(csv_frame, text="Browse", command=self.browse_save_dir).grid(row=1, column=2, pady=5)
-        
-        # Font File Selection
-        ttk.Label(csv_frame, text="Font File:").grid(row=2, column=0, sticky=tk.W, pady=5)
-        font_entry = ttk.Entry(csv_frame, textvariable=self.font_file_path, width=50)
-        font_entry.grid(row=2, column=1, sticky=(tk.W, tk.E), padx=(10, 5), pady=5)
-        ttk.Button(csv_frame, text="Browse", command=self.browse_font).grid(row=2, column=2, pady=5)
-        
-        # Optional checkbox
-        self.use_custom_font = tk.BooleanVar(value=False)
-        font_check = ttk.Checkbutton(csv_frame, text="Use custom font (optional)", 
-                                   variable=self.use_custom_font, command=self.toggle_font_field)
-        font_check.grid(row=3, column=1, sticky=tk.W, pady=5)
-        
         # CSV Process button
         self.csv_process_button = ttk.Button(csv_frame, text="Generate QR Codes from CSV", 
                                            command=self.process_qr_codes, style="Accent.TButton")
-        self.csv_process_button.grid(row=4, column=0, columnspan=2, pady=10)
+        self.csv_process_button.grid(row=1, column=0, columnspan=2, pady=10)
         
         # Progress bar
         self.progress = ttk.Progressbar(main_frame, mode='indeterminate')
-        self.progress.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
+        self.progress.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=10)
         
         # Status label
         self.status_label = ttk.Label(main_frame, text="Ready to generate QR codes")
-        self.status_label.grid(row=4, column=0, columnspan=3, pady=5)
+        self.status_label.grid(row=6, column=0, columnspan=3, pady=5)
         
         # Initially disable font field
         self.toggle_font_field()
@@ -106,9 +118,11 @@ class QRCodeMakerGUI:
     def toggle_font_field(self):
         """Enable/disable font field based on checkbox"""
         if self.use_custom_font.get():
-            self.font_file_path.set("")
+            self.font_entry.config(state='normal')
+            self.font_browse_button.config(state='normal')
         else:
-            self.font_file_path.set("DejaVuSans.ttf")
+            self.font_entry.config(state='disabled')
+            self.font_browse_button.config(state='disabled')
     
     def browse_csv(self):
         """Browse for CSV file"""
@@ -123,7 +137,8 @@ class QRCodeMakerGUI:
         """Browse for save directory"""
         directory = filedialog.askdirectory(title="Select Save Directory")
         if directory:
-            self.save_directory.set(directory)
+            # Convert to absolute path to show full directory
+            self.save_directory.set(os.path.abspath(directory))
     
     def browse_font(self):
         """Browse for font file"""
