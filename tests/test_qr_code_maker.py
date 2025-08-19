@@ -167,7 +167,7 @@ class TestImageGeneration:
         
         assert isinstance(img, Image.Image)
         assert img.mode == 'RGBA'
-        assert img.size == (2480, 3508)  # Default A4 size
+        assert img.size == (2550, 3300)  # Default Letter size
     
     @patch('src.qr_code_maker.get_font')
     def test_create_full_page_image_long_title(self, mock_get_font):
@@ -185,7 +185,7 @@ class TestImageGeneration:
         img = create_full_page_image(long_title, url, font_path, save_dir)
         
         assert isinstance(img, Image.Image)
-        assert img.size == (2480, 3508)
+        assert img.size == (2550, 3300)
 
 
 class TestCSVProcessing:

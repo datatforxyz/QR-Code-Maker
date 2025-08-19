@@ -74,12 +74,12 @@ def create_qr_code(url, qr_size=2000):
     return img_qr
 
 
-def create_full_page_image(title, url, font_path, save_to_dir, page_size=(2480, 3508), dpi=300):
+def create_full_page_image(title, url, font_path, save_to_dir, page_size=(2550, 3300), dpi=300):
     """
     Creates a full-page image with the title at the top, a high-resolution QR code in the middle,
     and the URL text below the QR code, all on a transparent background.
     """
-    # Create a transparent background image (A4 size at 300 DPI)
+    # Create a transparent background image (Letter size at 300 DPI)
     img = Image.new('RGBA', page_size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     

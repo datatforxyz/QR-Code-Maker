@@ -97,7 +97,7 @@ python src/qr_code_maker.py input.csv output_folder custom_font.ttf
 ## Output
 
 - **Format**: High-resolution PNG images (300 DPI)
-- **Size**: A4 page layout (2480x3508 pixels)
+- **Size**: Letter page layout (2550x3300 pixels)
 - **Content**: Title, QR code, and URL text
 - **Background**: Transparent (perfect for printing)
 - **Naming**: Cleaned title text used for filenames
